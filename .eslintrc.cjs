@@ -32,16 +32,35 @@ module.exports = {
         argsIgnorePattern: '^_',
       },
     ],
-    'boundaries/element-types': [
+    'boundaries/dependencies': [
       2,
       {
         default: 'disallow',
-        rules: [
-          { from: 'domain', allow: ['domain'] },
-          { from: 'application', allow: ['domain', 'application'] },
-          { from: 'adapters', allow: ['domain', 'application', 'adapters', 'config'] },
-          { from: 'config', allow: ['config'] },
-          { from: 'main', allow: ['domain', 'application', 'adapters', 'config'] },
+        policies: [
+          {
+            from: { element: { type: 'domain' } },
+            allow: { to: { element: { type: 'domain' } } },
+          },
+          {
+            from: { element: { type: 'application' } },
+            allow: { to: { element: { types: { anyOf: ['domain', 'application'] } } } },
+          },
+          {
+            from: { element: { type: 'adapters' } },
+            allow: {
+              to: { element: { types: { anyOf: ['domain', 'application', 'adapters', 'config'] } } },
+            },
+          },
+          {
+            from: { element: { type: 'config' } },
+            allow: { to: { element: { type: 'config' } } },
+          },
+          {
+            from: { element: { type: 'main' } },
+            allow: {
+              to: { element: { types: { anyOf: ['domain', 'application', 'adapters', 'config'] } } },
+            },
+          },
         ],
       },
     ],
