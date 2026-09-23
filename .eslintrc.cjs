@@ -25,7 +25,6 @@ module.exports = {
       'error',
       {
         argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
       },
     ],
     'boundaries/element-types': [
