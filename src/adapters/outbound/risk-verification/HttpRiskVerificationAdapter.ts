@@ -1,5 +1,11 @@
+import { z } from 'zod';
 import { RiskVerificationPort, RiskVerificationSubject } from '../../../application/ports/RiskVerificationPort';
 import { RiskVerificationResult } from '../../../domain/value-objects/RiskVerificationResult';
+
+const riskVerificationResponseSchema = z.object({
+  score: z.number().min(0).max(100),
+  sanctionsListHit: z.boolean(),
+});
 
 export class HttpRiskVerificationAdapter implements RiskVerificationPort {
   constructor(
@@ -23,7 +29,7 @@ export class HttpRiskVerificationAdapter implements RiskVerificationPort {
         throw new Error(`risk verification service responded with status ${response.status}`);
       }
 
-      const body = (await response.json()) as { score: number; sanctionsListHit: boolean };
+      const body = riskVerificationResponseSchema.parse(await response.json());
       return { score: body.score, sanctionsListHit: body.sanctionsListHit };
     } finally {
       clearTimeout(timeout);

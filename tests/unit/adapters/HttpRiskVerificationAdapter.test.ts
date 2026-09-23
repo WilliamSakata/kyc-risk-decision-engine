@@ -4,7 +4,7 @@ import { HttpRiskVerificationAdapter } from '../../../src/adapters/outbound/risk
 
 let server: Server;
 let baseUrl: string;
-let responseBehavior: 'ok' | 'error' | 'hang' = 'ok';
+let responseBehavior: 'ok' | 'error' | 'hang' | 'malformed' = 'ok';
 
 beforeAll(async () => {
   server = createServer((req, res) => {
@@ -13,6 +13,11 @@ beforeAll(async () => {
       return;
     }
     if (responseBehavior === 'hang') {
+      return;
+    }
+    if (responseBehavior === 'malformed') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ score: 73 }));
       return;
     }
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -53,6 +58,13 @@ describe('HttpRiskVerificationAdapter', () => {
   it('throws when the server does not respond before the timeout', async () => {
     responseBehavior = 'hang';
     const adapter = new HttpRiskVerificationAdapter(baseUrl, 50);
+
+    await expect(adapter.verify(customer)).rejects.toThrow();
+  });
+
+  it('throws when the response body is missing sanctionsListHit', async () => {
+    responseBehavior = 'malformed';
+    const adapter = new HttpRiskVerificationAdapter(baseUrl);
 
     await expect(adapter.verify(customer)).rejects.toThrow();
   });
