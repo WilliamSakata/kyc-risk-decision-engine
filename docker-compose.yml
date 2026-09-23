@@ -1,0 +1,19 @@
+services:
+  mock-risk-verification-server:
+    build: .
+    command: ["npx", "tsx", "mock-risk-verification-server/server.ts"]
+    environment:
+      PORT: "4001"
+    ports:
+      - "4001:4001"
+
+  app:
+    build: .
+    command: ["npx", "tsx", "src/main.ts"]
+    environment:
+      PORT: "3000"
+      RISK_VERIFICATION_BASE_URL: "http://mock-risk-verification-server:4001"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mock-risk-verification-server

@@ -23,3 +23,35 @@ Not the focus of this project. A simple Dockerfile with docker-compose is enough
 ## What it demonstrates
 
 DDD and TDD actually applied, not just name-dropped on a résumé. Clear separation between business rules and infrastructure.
+
+## Como rodar
+
+Local, sem Docker:
+
+```bash
+npm install
+npm run mock-server   # terminal 1 — mock de verificação de risco na porta 4001
+npm run dev            # terminal 2 — serviço principal na porta 3000
+```
+
+Com Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Testando:
+
+```bash
+curl -X POST http://localhost:3000/risk-checks \
+  -H 'Content-Type: application/json' \
+  -d '{"customerId":"cus_demo","customerName":"Jane Doe","country":"BR"}'
+```
+
+Rodando os testes:
+
+```bash
+npm test
+npm run typecheck
+npm run lint
+```
