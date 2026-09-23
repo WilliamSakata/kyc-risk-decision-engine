@@ -12,6 +12,11 @@ module.exports = {
     es2022: true,
   },
   settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.ts', '.js'],
+      },
+    },
     'boundaries/elements': [
       { type: 'domain', pattern: 'src/domain/**' },
       { type: 'application', pattern: 'src/application/**' },
