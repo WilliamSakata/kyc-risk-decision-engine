@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import express, { Express } from 'express';
+import { Express } from 'express';
 import { createServer, Server } from 'node:http';
 import { createApp } from '../../src/adapters/inbound/http/app';
 import { EvaluateRiskCheck } from '../../src/application/use-cases/EvaluateRiskCheck';
@@ -10,19 +10,13 @@ import { PriorDenialRule } from '../../src/domain/rules/PriorDenialRule';
 import { SanctionsListRule } from '../../src/domain/rules/SanctionsListRule';
 import { HttpRiskVerificationAdapter } from '../../src/adapters/outbound/risk-verification/HttpRiskVerificationAdapter';
 import { InMemoryCustomerHistoryRepository } from '../../src/adapters/outbound/history/InMemoryCustomerHistoryRepository';
+import { createMockRiskVerificationApp } from '../../mock-risk-verification-server/server';
 
 let mockServer: Server;
 let app: Express;
 
 beforeAll(async () => {
-  const mockApp = express();
-  mockApp.use(express.json());
-  mockApp.post('/verifications', (req, res) => {
-    const { customerId } = req.body as { customerId: string };
-    res.status(200).json({ score: 90, sanctionsListHit: customerId === 'cus_sanctioned' });
-  });
-
-  mockServer = createServer(mockApp);
+  mockServer = createServer(createMockRiskVerificationApp());
   await new Promise<void>((resolve) => mockServer.listen(0, resolve));
   const address = mockServer.address();
   if (address === null || typeof address === 'string') {
@@ -53,11 +47,11 @@ describe('POST /risk-checks (integration)', () => {
   it('approves a customer that clears verification with a high score', async () => {
     const response = await request(app)
       .post('/risk-checks')
-      .send({ customerId: 'cus_ok', customerName: 'Jane Doe', country: 'BR' });
+      .send({ customerId: 'cus_clean', customerName: 'Jane Doe', country: 'BR' });
 
     expect(response.status).toBe(200);
     expect(response.body.decision).toBe('APPROVE');
-    expect(response.body.riskScore).toBe(90);
+    expect(response.body.riskScore).toBe(91);
   });
 
   it('denies a customer that matches the sanctions list, even with a high score', async () => {

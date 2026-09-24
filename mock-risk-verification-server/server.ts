@@ -1,7 +1,4 @@
-import express from 'express';
-
-const app = express();
-app.use(express.json());
+import express, { Express } from 'express';
 
 function scoreForCustomer(customerId: string): number {
   let hash = 0;
@@ -11,21 +8,31 @@ function scoreForCustomer(customerId: string): number {
   return hash;
 }
 
-app.post('/verifications', (req, res) => {
-  const { customerId } = req.body as { customerId?: string };
+export function createMockRiskVerificationApp(): Express {
+  const app = express();
+  app.use(express.json());
 
-  if (!customerId) {
-    res.status(400).json({ error: 'customerId is required' });
-    return;
-  }
+  app.post('/verifications', (req, res) => {
+    const { customerId } = req.body as { customerId?: string };
 
-  res.status(200).json({
-    score: scoreForCustomer(customerId),
-    sanctionsListHit: customerId === 'cus_sanctioned',
+    if (!customerId) {
+      res.status(400).json({ error: 'customerId is required' });
+      return;
+    }
+
+    res.status(200).json({
+      score: scoreForCustomer(customerId),
+      sanctionsListHit: customerId === 'cus_sanctioned',
+    });
   });
-});
 
-const port = Number(process.env.PORT ?? 4001);
-app.listen(port, () => {
-  console.log(`mock-risk-verification-server listening on port ${port}`);
-});
+  return app;
+}
+
+if (require.main === module) {
+  const app = createMockRiskVerificationApp();
+  const port = Number(process.env.PORT ?? 4001);
+  app.listen(port, () => {
+    console.log(`mock-risk-verification-server listening on port ${port}`);
+  });
+}
