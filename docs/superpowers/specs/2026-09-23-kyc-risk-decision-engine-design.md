@@ -168,7 +168,7 @@ Response `200`:
 {
   "customerId": "cus_123",
   "decision": "MANUAL_REVIEW",
-  "reasons": ["score in the 21-79 range"],
+  "reasons": ["score 55 is in the manual review range (21-79)"],
   "riskScore": 55
 }
 ```
