@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { EvaluateRiskCheck } from '../../../application/use-cases/EvaluateRiskCheck';
 
@@ -11,7 +11,7 @@ const riskCheckRequestSchema = z.object({
 export function createRiskCheckRouter(evaluateRiskCheck: EvaluateRiskCheck): Router {
   const router = Router();
 
-  router.post('/risk-checks', async (req: Request, res: Response) => {
+  router.post('/risk-checks', async (req: Request, res: Response, next: NextFunction) => {
     const parseResult = riskCheckRequestSchema.safeParse(req.body);
 
     if (!parseResult.success) {
@@ -19,8 +19,12 @@ export function createRiskCheckRouter(evaluateRiskCheck: EvaluateRiskCheck): Rou
       return;
     }
 
-    const result = await evaluateRiskCheck.execute(parseResult.data);
-    res.status(200).json(result);
+    try {
+      const result = await evaluateRiskCheck.execute(parseResult.data);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
   });
 
   return router;
