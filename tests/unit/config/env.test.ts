@@ -27,4 +27,10 @@ describe('loadEnv', () => {
     expect(env.port).toBe(5050);
     expect(env.riskVerificationBaseUrl).toBe('http://risk-mock:9000');
   });
+
+  it('throws when PORT is not a number', () => {
+    process.env.PORT = 'abc';
+
+    expect(() => loadEnv()).toThrow('Invalid PORT environment variable: "abc" is not a number');
+  });
 });
