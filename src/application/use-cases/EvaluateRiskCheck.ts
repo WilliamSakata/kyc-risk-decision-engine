@@ -1,5 +1,6 @@
 import { RiskDecisionEngine } from '../../domain/services/RiskDecisionEngine';
 import { Decision } from '../../domain/value-objects/Decision';
+import { RiskVerificationResult } from '../../domain/value-objects/RiskVerificationResult';
 import { RiskVerificationPort } from '../ports/RiskVerificationPort';
 import { CustomerHistoryPort } from '../ports/CustomerHistoryPort';
 import { EvaluateRiskCheckInput } from '../dtos/EvaluateRiskCheckInput';
@@ -15,17 +16,17 @@ export class EvaluateRiskCheck {
   async execute(input: EvaluateRiskCheckInput): Promise<EvaluateRiskCheckOutput> {
     const history = await this.customerHistory.getHistory(input.customerId);
 
-    let decision: Decision;
-    let riskScore: number | null;
+    let verification: RiskVerificationResult | null;
 
     try {
-      const verification = await this.riskVerification.verify(input);
-      decision = this.decisionEngine.decide({ verification, history });
-      riskScore = verification.score;
+      verification = await this.riskVerification.verify(input);
     } catch {
-      decision = { outcome: 'MANUAL_REVIEW', reasons: ['risk verification unavailable'] };
-      riskScore = null;
+      verification = null;
     }
+
+    const decision: Decision = verification
+      ? this.decisionEngine.decide({ verification, history })
+      : { outcome: 'MANUAL_REVIEW', reasons: ['risk verification unavailable'] };
 
     await this.customerHistory.recordDecision(input.customerId, decision);
 
@@ -33,7 +34,7 @@ export class EvaluateRiskCheck {
       customerId: input.customerId,
       decision: decision.outcome,
       reasons: decision.reasons,
-      riskScore,
+      riskScore: verification ? verification.score : null,
     };
   }
 }
