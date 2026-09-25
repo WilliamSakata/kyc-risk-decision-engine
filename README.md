@@ -20,10 +20,6 @@ TypeScript. Core domain tested via TDD with in-memory fixtures — the suite run
 
 Not the focus of this project. A simple Dockerfile with docker-compose is enough; forcing k8s here would add complexity without demonstrating anything new.
 
-## What it demonstrates
-
-DDD and TDD actually applied, not just name-dropped on a résumé. Clear separation between business rules and infrastructure.
-
 ## How to run
 
 Locally, without Docker:
