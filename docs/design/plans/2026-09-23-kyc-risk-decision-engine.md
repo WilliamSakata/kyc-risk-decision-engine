@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node.js 22, TypeScript (strict, CommonJS), Express, Zod, Vitest, Supertest, `tsx` (dev/prod runner, no build step), ESLint + `eslint-plugin-boundaries`.
 
-**Spec:** `docs/superpowers/specs/2026-09-23-kyc-risk-decision-engine-design.md`
+**Spec:** `docs/design/specs/2026-09-23-kyc-risk-decision-engine-design.md`
 
 ## Global Constraints
 
